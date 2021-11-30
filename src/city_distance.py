@@ -6,28 +6,58 @@ now, I have implemented it in a brute-force manner.
 References:
     - https://stackoverflow.com/questions/1502590/calculate-distance-between-two-points-in-google-maps-v3
     - https://developers.google.com/maps/documentation/distance-matrix/overview#maps_http_distancematrix_latlng-py
+    - https://pypi.org/project/haversine/
+    - https://towardsdatascience.com/calculating-distance-between-two-geolocations-in-python-26ad3afe287b
+    - https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude
 """
 
 from itertools import permutations
 import random
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
+
+from haversine import haversine, Unit
 
 
 def ord_of_text(text: str) -> int:
     return int(sum((ord(char) for char in text)))
 
 
+# def get_distance_between_coords(coord1: str, coord2: str) -> Union[int, float]:
+#     """
+#     Returns some fake distance between the given two co-ordinates (in kilometers).
+#     The distance will always be the same for every unique co-ordinate pair given.
+
+#     Note: I could have used an API to calculate the distance, but since this is just an interview
+#     assignment, I have used a neat trick to do the same. Hope you don't mind.
+#     """
+#     random_seed = ord_of_text(text=coord1 + coord2) * -2 # Some random seed value
+#     random.seed(random_seed)
+#     distance_between_coords = random.random() * 1000
+#     return round(distance_between_coords, 3)
+
+
+def deconstruct_coordinate(coord: str) -> Tuple[float, float]:
+    """
+    Returns tuple of (latitude, longitude).
+    >>> deconstruct_coordinate(coord="51.5074 N, 0.1278 W") # Returns (51.5074, 0.1278)
+    """
+    chars_to_keep = '.0123456789'
+    latitude, longitude = coord.split(',')
+    latitude = "".join(filter(lambda char: char in chars_to_keep, latitude))
+    longitude = "".join(filter(lambda char: char in chars_to_keep, longitude))
+    return (float(latitude), float(longitude))
+
+
 def get_distance_between_coords(coord1: str, coord2: str) -> Union[int, float]:
     """
-    Returns some fake distance between the given two co-ordinates (in kilometers).
+    Returns distance between the given two co-ordinates (in kilometers).
     The distance will always be the same for every unique co-ordinate pair given.
-
-    Note: I could have used an API to calculate the distance, but since this is just an interview
-    assignment, I have used a neat trick to do the same. Hope you don't mind.
     """
-    random_seed = ord_of_text(text=coord1 + coord2) * -2 # Some random seed value
-    random.seed(random_seed)
-    distance_between_coords = random.random() * 1000
+    distance_between_coords = haversine(
+        point1=deconstruct_coordinate(coord=coord1),
+        point2=deconstruct_coordinate(coord=coord2),
+        unit=Unit.KILOMETERS,
+    )
     return round(distance_between_coords, 3)
 
 
