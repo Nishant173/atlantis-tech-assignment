@@ -5,11 +5,31 @@ References:
     - https://stackoverflow.com/questions/22469997/how-to-get-all-the-contiguous-substrings-of-a-string-in-python
 """
 
+import string
 from typing import List, Union
 
 
 def is_vowel(character: str) -> bool:
     return character in 'aeiouAEIOU'
+
+
+def is_consonant(character: str) -> bool:
+    alphabets = string.ascii_lowercase + string.ascii_uppercase
+    return (character in alphabets and not is_vowel(character=character))
+
+
+def mark_vowels_and_consonants(text: str) -> str:
+    """Replaces vowels with 'v' and consonants with 'c'. Other characters will be marked by 'o'."""
+    # "".join(('v' if is_vowel(character=character) else 'c' for character in word))
+    marked_text = ""
+    for character in text:
+        if is_vowel(character=character):
+            marked_text += 'v'
+        elif is_consonant(character=character):
+            marked_text += 'c'
+        else:
+            marked_text += 'o'
+    return marked_text
 
 
 def get_indexes(seq, start=0):
@@ -25,20 +45,13 @@ def get_all_substrings(word: str, min_substring_length: int) -> List[str]:
 
 
 def is_pronunciable(word: str) -> bool:
-    """
-    Word is said to be pronunciable if it has at-least 1 vowel after at-most 2 consonants.
-    i.e; must not have 3 or more consecutive consonants.
-    """
-    # return 'ccc' not in "".join(('v' if is_vowel(character=character) else 'c' for character in text))
-    consecutive_consonant_count = 0
-    for character in word:
-        if is_vowel(character=character):
-            consecutive_consonant_count = 0
-        else:
-            consecutive_consonant_count += 1
-            if consecutive_consonant_count == 3:
-                return False
-    return True
+    word_length = len(word)
+    vowel_and_consonant_marker = mark_vowels_and_consonants(text=word).replace('o', '')
+    if word_length < 2:
+        return False
+    if word_length == 2:
+        return 'v' in vowel_and_consonant_marker
+    return 'ccc' not in vowel_and_consonant_marker
 
 
 def get_pronunciable_substrings(all_substrings: List[str]) -> Union[List[str], List]:
